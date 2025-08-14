@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.auth import get_current_active_user, get_admin_user, get_db
@@ -10,8 +10,8 @@ router = APIRouter()
 # Admin: List all users with pagination
 @router.get("/users", response_model=List[UserOut], tags=["admin"])
 async def list_users(
-    skip: int = 0,
-    limit: int = Query(10, le=100),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
     current_user: User = Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
@@ -20,7 +20,11 @@ async def list_users(
 
 # Admin: Get user details
 @router.get("/users/{user_id}", response_model=UserOut, tags=["admin"])
-async def get_user(user_id: int, current_user: User = Depends(get_admin_user), db: Session = Depends(get_db)):
+async def get_user(
+    user_id: int = Path(..., ge=1),
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -28,7 +32,12 @@ async def get_user(user_id: int, current_user: User = Depends(get_admin_user), d
 
 # Admin: Add contact for any user
 @router.post("/users/{user_id}/contacts", response_model=ContactOut, tags=["admin"])
-async def add_contact_for_user(user_id: int, contact: ContactCreate, current_user: User = Depends(get_admin_user), db: Session = Depends(get_db)):
+async def add_contact_for_user(
+    user_id: int = Path(..., ge=1),
+    contact: ContactCreate = Depends(),
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -40,7 +49,12 @@ async def add_contact_for_user(user_id: int, contact: ContactCreate, current_use
 
 # Admin: Update contact
 @router.put("/contacts/{contact_id}", response_model=ContactOut, tags=["admin"])
-async def update_contact(contact_id: int, contact: ContactUpdate, current_user: User = Depends(get_admin_user), db: Session = Depends(get_db)):
+async def update_contact(
+    contact_id: int = Path(..., ge=1),
+    contact: ContactUpdate = Depends(),
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
     db_contact = db.query(Contact).filter(Contact.id == contact_id).first()
     if not db_contact:
         raise HTTPException(status_code=404, detail="Contact not found")
@@ -52,7 +66,11 @@ async def update_contact(contact_id: int, contact: ContactUpdate, current_user: 
 
 # Admin: Delete contact
 @router.delete("/contacts/{contact_id}", status_code=204, tags=["admin"])
-async def delete_contact(contact_id: int, current_user: User = Depends(get_admin_user), db: Session = Depends(get_db)):
+async def delete_contact(
+    contact_id: int = Path(..., ge=1),
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
     db_contact = db.query(Contact).filter(Contact.id == contact_id).first()
     if not db_contact:
         raise HTTPException(status_code=404, detail="Contact not found")
@@ -62,13 +80,20 @@ async def delete_contact(contact_id: int, current_user: User = Depends(get_admin
 
 # User: List own contacts
 @router.get("/contacts", response_model=List[ContactOut], tags=["user"])
-async def list_my_contacts(current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def list_my_contacts(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
     contacts = db.query(Contact).filter(Contact.user_id == current_user.id).all()
     return contacts
 
 # User: View own contact
 @router.get("/contacts/{contact_id}", response_model=ContactOut, tags=["user"])
-async def get_my_contact(contact_id: int, current_user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+async def get_my_contact(
+    contact_id: int = Path(..., ge=1),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
     contact = db.query(Contact).filter(Contact.id == contact_id, Contact.user_id == current_user.id).first()
     if not contact:
         raise HTTPException(status_code=404, detail="Contact not found")
