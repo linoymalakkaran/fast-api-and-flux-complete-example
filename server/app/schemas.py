@@ -1,8 +1,19 @@
-
-
 from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional, List
 
+# UserCreate schema for creating users
+class UserCreate(BaseModel):
+	username: str
+	password: str
+	role: str
+	class Config:
+		schema_extra = {
+			"example": {
+				"username": "user1",
+				"password": "password123",
+				"role": "user"
+			}
+		}
 
 class ContactBase(BaseModel):
 	name: str = "John Doe"

@@ -1,13 +1,49 @@
 
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.auth import get_current_active_user, get_admin_user, get_db
 from app.models import User, Contact
-from app.schemas import ContactCreate, ContactUpdate, ContactOut, UserOut
+from app.schemas import UserOut, ContactCreate, ContactOut, UserCreate, ContactUpdate
 from app.core.utils import log_dependency, log_decorator
 
 router = APIRouter()
+
+# Admin: Create user with contacts in one request
+from pydantic import BaseModel
+class UserWithContactsCreate(BaseModel):
+    username: str
+    password: str
+    role: str
+    contacts: Optional[List[ContactCreate]] = []
+
+@router.post("/users_with_contacts", response_model=UserOut, tags=["admin"])
+async def create_user_with_contacts(
+    payload: UserWithContactsCreate,
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    # Create user
+    from app.core.auth import get_password_hash
+    user = User(
+        username=payload.username,
+        hashed_password=get_password_hash(payload.password),
+        role=payload.role
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    # Add contacts
+    contacts_out = []
+    for contact in payload.contacts:
+        new_contact = Contact(user_id=user.id, **contact.model_dump())
+        db.add(new_contact)
+        db.commit()
+        db.refresh(new_contact)
+        contacts_out.append(new_contact)
+    user.contacts = contacts_out
+    return user
 
 # Admin: List all users with pagination
 @router.get("/users", response_model=List[UserOut], tags=["admin"])

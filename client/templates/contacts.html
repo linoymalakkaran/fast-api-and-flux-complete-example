@@ -4,19 +4,19 @@
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">Contacts</h1>
     {% if session['role'] == 'admin' %}
-    <a href="/add_contact" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Add New Contact</a>
+    <a href="/add_contact" class="btn-primary">Add New Contact</a>
     {% endif %}
 </div>
-<div class="bg-white shadow rounded p-6">
+<div class="card">
     <ul>
     {% for contact in contacts %}
         <li class="border-b py-2 flex justify-between items-center">
             <span>{{ contact['name'] }} <span class="text-gray-500">(Email: {{ contact['email'] }}, Phone: {{ contact['phone'] }})</span></span>
             {% if session['role'] == 'admin' %}
                 <span>
-                    <a href="/contacts/edit/{{ contact['id'] }}" class="text-blue-600 hover:underline mr-2">Edit</a>
+                    <a href="/contacts/edit/{{ contact['id'] }}" class="btn-primary mr-2">Edit</a>
                     <form method="post" action="/contacts/delete/{{ contact['id'] }}" class="inline">
-                        <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Delete this contact?');">Delete</button>
+                        <button type="submit" class="btn-danger" onclick="return confirm('Delete this contact?');">Delete</button>
                     </form>
                 </span>
             {% endif %}
