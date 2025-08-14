@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -5,19 +6,8 @@ from app.core.auth import get_current_active_user, get_admin_user, get_db
 from app.models import User, Contact
 from app.schemas import ContactCreate, ContactUpdate, ContactOut, UserOut
 from app.core.utils import log_dependency, log_decorator
-import requests
-from flask import Blueprint, request, redirect, url_for, session, render_template
 
 router = APIRouter()
-users_bp = Blueprint('users', __name__)
-
-API_BASE_URL = "http://localhost:8000"  # Update with your actual API base URL
-
-def get_auth_headers():
-    return {
-        "Authorization": f"Bearer {session['access_token']}",
-        "Content-Type": "application/json"
-    }
 
 # Admin: List all users with pagination
 @router.get("/users", response_model=List[UserOut], tags=["admin"])
@@ -112,78 +102,3 @@ async def get_my_contact(
     if not contact:
         raise HTTPException(status_code=404, detail="Contact not found")
     return contact
-
-# List all users (admin only)
-@users_bp.route('/users')
-def users():
-    if 'access_token' not in session:
-        return redirect(url_for('auth.login'))
-    response = requests.get(f'{API_BASE_URL}/users', headers=get_auth_headers())
-    users = response.json() if response.status_code == 200 else []
-    return render_template('users.html', users=users)
-
-# Add a new user (admin only)
-@users_bp.route('/add_user', methods=['GET', 'POST'])
-def add_user():
-    if 'access_token' not in session:
-        return redirect(url_for('auth.login'))
-    error = None
-    success = None
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        role = request.form['role']
-        response = requests.post(f'{API_BASE_URL}/users', json={
-            'username': username,
-            'password': password,
-            'role': role
-        }, headers=get_auth_headers())
-        if response.status_code == 200 or response.status_code == 201:
-            success = 'User added successfully.'
-        else:
-            error = response.json().get('detail', 'Failed to add user.')
-    return render_template('add_user.html', error=error, success=success)
-
-# Edit user (admin only)
-@users_bp.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
-def edit_user(user_id):
-    if 'access_token' not in session:
-        return redirect(url_for('auth.login'))
-    error = None
-    success = None
-    # Get user details
-    response = requests.get(f'{API_BASE_URL}/users/{user_id}', headers=get_auth_headers())
-    if response.status_code != 200:
-        error = 'User not found.'
-        return render_template('edit_user.html', error=error, user={})
-    user = response.json()
-    if request.method == 'POST':
-        username = request.form['username']
-        role = request.form['role']
-        # Update user
-        update_resp = requests.put(f'{API_BASE_URL}/users/{user_id}', json={
-            'username': username,
-            'role': role
-        }, headers=get_auth_headers())
-        if update_resp.status_code == 200:
-            success = 'User updated successfully.'
-            user = update_resp.json()
-        else:
-            error = update_resp.json().get('detail', 'Failed to update user.')
-    return render_template('edit_user.html', error=error, success=success, user=user)
-
-# Delete user (admin only)
-@users_bp.route('/delete_user/<int:user_id>', methods=['POST'])
-def delete_user(user_id):
-    if 'access_token' not in session:
-        return redirect(url_for('auth.login'))
-    response = requests.delete(f'{API_BASE_URL}/users/{user_id}', headers=get_auth_headers())
-    if response.status_code == 204:
-        return redirect(url_for('users.users'))
-    error = response.json().get('detail', 'Failed to delete user.')
-    # Optionally, re-fetch users and show error
-    users = []
-    resp = requests.get(f'{API_BASE_URL}/users', headers=get_auth_headers())
-    if resp.status_code == 200:
-        users = resp.json()
-    return render_template('users.html', users=users, error=error)

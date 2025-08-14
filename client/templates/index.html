@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>API Management UI</title>
+</head>
+<body>
+    <h1>Welcome to the API Management UI</h1>
+    <ul>
+        <li><a href="/users">View Users</a></li>
+    {% if session['role'] == 'admin' %}
+    <li><a href="/add_user">Add User</a></li>
+    {% endif %}
+        <li><a href="/contacts">View Contacts</a></li>
+    {% if session['role'] == 'admin' %}
+    <li><a href="/add_contact">Add Contact</a></li>
+    {% endif %}
+    </ul>
+</body>
+</html>
