@@ -1,25 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Add User</title>
-</head>
-<body>
-    <h1>Add User</h1>
-    <form method="post" action="/add_user">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br>
-        <label for="role">Role:</label>
-        <select id="role" name="role">
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-        </select><br>
-        <button type="submit">Add User</button>
+{% extends 'base.html' %}
+{% block title %}Add User{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white shadow rounded p-8 mt-8">
+    <h1 class="text-2xl font-bold mb-6">Add User</h1>
+    <form method="post" action="/add_user" class="space-y-4">
+        <div>
+            <label for="username" class="block font-semibold">Username:</label>
+            <input type="text" id="username" name="username" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+            <label for="password" class="block font-semibold">Password:</label>
+            <input type="password" id="password" name="password" required class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+            <label for="role" class="block font-semibold">Role:</label>
+            <select id="role" name="role" class="w-full border rounded px-3 py-2">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add User</button>
     </form>
-    {% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
-    {% if success %}<p style="color:green;">{{ success }}</p>{% endif %}
-    <a href="/users">Back to Users</a>
-</body>
-</html>
+    {% if error %}<p class="text-red-600 mt-4">{{ error }}</p>{% endif %}
+    {% if success %}<p class="text-green-600 mt-4">{{ success }}</p>{% endif %}
+    <a href="/users" class="block mt-4 text-blue-600 hover:underline">Back to Users</a>
+</div>
+{% endblock %}

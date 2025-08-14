@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}App{% endblock %}</title>
+    <link href="/static/tailwind.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-600 text-white px-4 py-2 flex justify-between items-center">
+        <div class="font-bold text-lg">API Management UI</div>
+        <div>
+            <a href="/" class="px-2 hover:underline">Home</a>
+            <a href="/users" class="px-2 hover:underline">Users</a>
+            <a href="/contacts" class="px-2 hover:underline">Contacts</a>
+            <a href="/logout" class="px-2 hover:underline">Logout</a>
+        </div>
+    </nav>
+    <main class="container mx-auto py-8">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
