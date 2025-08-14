@@ -5,10 +5,10 @@ from typing import Optional, List
 
 
 class ContactBase(BaseModel):
-	name: str
-	email: Optional[EmailStr] = None
-	phone: Optional[str] = None
-	address: Optional[str] = None
+	name: str = "John Doe"
+	email: Optional[EmailStr] = "john@example.com"
+	phone: Optional[str] = "+1234567890"
+	address: Optional[str] = "123 Main St"
 
 	@field_validator('name')
 	def name_must_not_be_empty(cls, v):
@@ -24,20 +24,56 @@ class ContactBase(BaseModel):
 
 class ContactCreate(ContactBase):
 	pass
+	class Config:
+		schema_extra = {
+			"example": {
+				"name": "John Doe",
+				"email": "john@example.com",
+				"phone": "+1234567890",
+				"address": "123 Main St"
+			}
+		}
 
 class ContactUpdate(ContactBase):
 	pass
+	class Config:
+		schema_extra = {
+			"example": {
+				"name": "Jane Doe",
+				"email": "jane@example.com",
+				"phone": "+1987654321",
+				"address": "456 Elm St"
+			}
+		}
 
 class ContactOut(ContactBase):
-	id: int
-	user_id: int
+	id: int = 1
+	user_id: int = 1
 	class Config:
 		orm_mode = True
+		schema_extra = {
+			"example": {
+				"id": 1,
+				"user_id": 1,
+				"name": "John Doe",
+				"email": "john@example.com",
+				"phone": "+1234567890",
+				"address": "123 Main St"
+			}
+		}
 
 class UserOut(BaseModel):
-	id: int
-	username: str
-	role: str
+	id: int = 1
+	username: str = "user1"
+	role: str = "user"
+	class Config:
+		schema_extra = {
+			"example": {
+				"id": 1,
+				"username": "user1",
+				"role": "user"
+			}
+		}
 	contacts: List[ContactOut] = []
 	class Config:
 		orm_mode = True

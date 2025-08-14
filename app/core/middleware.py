@@ -7,10 +7,13 @@ from datetime import datetime
 # Logging middleware (runs before and after every request)
 async def log_requests(request: Request, call_next):
     print(f"[Middleware] Before request: {request.method} {request.url.path}")
-    response = await call_next(request)
+    body = await request.body()
+    # Rebuild the request stream so downstream handlers can read it
+    async def receive():
+        return {"type": "http.request", "body": body}
+    response = await call_next(Request(request.scope, receive))
     print(f"[Middleware] After request: {request.method} {request.url.path}")
     # Optional: log to DB
-    body = await request.body()
     log_entry = Log(
         method=request.method,
         path=request.url.path,

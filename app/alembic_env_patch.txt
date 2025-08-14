@@ -1,3 +1,0 @@
-Update alembic/env.py to use app.models.Base for target_metadata:
-from app.models import Base
-target_metadata = Base.metadata
