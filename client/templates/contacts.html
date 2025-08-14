@@ -1,25 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Contacts</title>
-</head>
-<body>
-    <h1>Contacts</h1>
-    <a href="/">Home</a>
-    <ul>
-    {% for contact in contacts %}
-        <li>{{ contact['name'] }} (Email: {{ contact['email'] }}, Phone: {{ contact['phone'] }})</li>
-    {% endfor %}
-    </ul>
-</body>
 {% extends 'base.html' %}
 {% block title %}Contacts{% endblock %}
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">Contacts</h1>
     {% if session['role'] == 'admin' %}
-    <a href="/add_contact" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Contact</a>
+    <a href="/add_contact" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Add New Contact</a>
     {% endif %}
 </div>
 <div class="bg-white shadow rounded p-6">

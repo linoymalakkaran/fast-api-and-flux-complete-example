@@ -27,17 +27,27 @@ def add_contact():
         return redirect(url_for('auth.login'))
     error = None
     success = None
+    # Fetch users for dropdown
+    users = []
+    try:
+        response = requests.get(f'{API_BASE_URL}/users', headers=get_auth_headers())
+        if response.status_code == 200:
+            users = response.json()
+    except Exception:
+        pass
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
         phone = request.form['phone']
         address = request.form['address']
+        user_id = request.form['user_id']
         try:
             response = requests.post(f'{API_BASE_URL}/contacts', json={
                 'name': name,
                 'email': email,
                 'phone': phone,
-                'address': address
+                'address': address,
+                'user_id': user_id
             }, headers=get_auth_headers())
             if response.status_code == 200 or response.status_code == 201:
                 flash('Contact added successfully.', 'success')
@@ -46,7 +56,7 @@ def add_contact():
                 flash(response.json().get('detail', 'Failed to add contact.'), 'danger')
         except Exception as e:
             flash(f"Error adding contact: {str(e)}", "danger")
-    return render_template('add_contact.html')
+    return render_template('add_contact.html', users=users, error=error, success=success)
 
 # Edit a contact
 @contacts_bp.route('/contacts/edit/<int:contact_id>', methods=['GET', 'POST'])

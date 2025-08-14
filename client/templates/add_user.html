@@ -21,6 +21,62 @@
         </div>
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add User</button>
     </form>
+    <hr class="my-8">
+    <h2 class="text-xl font-bold mb-4">Add Contacts for this User</h2>
+    <form id="contacts-form" class="space-y-4">
+        <div>
+            <label for="contact_name" class="block font-semibold">Contact Name:</label>
+            <input type="text" id="contact_name" name="contact_name" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+            <label for="contact_email" class="block font-semibold">Contact Email:</label>
+            <input type="email" id="contact_email" name="contact_email" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+            <label for="contact_phone" class="block font-semibold">Contact Phone:</label>
+            <input type="text" id="contact_phone" name="contact_phone" class="w-full border rounded px-3 py-2">
+        </div>
+        <div>
+            <label for="contact_address" class="block font-semibold">Contact Address:</label>
+            <input type="text" id="contact_address" name="contact_address" class="w-full border rounded px-3 py-2">
+        </div>
+        <button type="button" onclick="addContactField()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Add Contact to List</button>
+    </form>
+    <div id="contacts-list" class="mt-4"></div>
+    <script>
+        let contacts = [];
+        function addContactField() {
+            const name = document.getElementById('contact_name').value;
+            const email = document.getElementById('contact_email').value;
+            const phone = document.getElementById('contact_phone').value;
+            const address = document.getElementById('contact_address').value;
+            if (name) {
+                contacts.push({ name, email, phone, address });
+                renderContactsList();
+                document.getElementById('contact_name').value = '';
+                document.getElementById('contact_email').value = '';
+                document.getElementById('contact_phone').value = '';
+                document.getElementById('contact_address').value = '';
+            }
+        }
+        function renderContactsList() {
+            const listDiv = document.getElementById('contacts-list');
+            listDiv.innerHTML = '<h3 class="font-bold mb-2">Contacts to Add:</h3>' + contacts.map((c, i) => `<div class='mb-2 p-2 border rounded'>${c.name} (${c.email}, ${c.phone}, ${c.address}) <button onclick='removeContact(${i})' class='text-red-600 ml-2'>Remove</button></div>`).join('');
+        }
+        function removeContact(index) {
+            contacts.splice(index, 1);
+            renderContactsList();
+        }
+        // On submit, add contacts to a hidden field
+        document.querySelector('form[action="/add_user"]').addEventListener('submit', function(e) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'contacts_json';
+            input.value = JSON.stringify(contacts);
+            this.appendChild(input);
+        });
+    </script>
+    </form>
     {% if error %}<p class="text-red-600 mt-4">{{ error }}</p>{% endif %}
     {% if success %}<p class="text-green-600 mt-4">{{ success }}</p>{% endif %}
     <a href="/users" class="block mt-4 text-blue-600 hover:underline">Back to Users</a>

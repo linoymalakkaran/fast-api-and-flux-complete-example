@@ -23,13 +23,23 @@ def add_user():
         username = request.form['username']
         password = request.form['password']
         role = request.form['role']
+        contacts_json = request.form.get('contacts_json')
         response = requests.post(f'{API_BASE_URL}/users', json={
             'username': username,
             'password': password,
             'role': role
         }, headers=get_auth_headers())
         if response.status_code == 200 or response.status_code == 201:
-            success = 'User added successfully.'
+            user = response.json()
+            user_id = user.get('id')
+            # Add related contacts if provided
+            if contacts_json and user_id:
+                import json
+                contacts = json.loads(contacts_json)
+                for contact in contacts:
+                    contact['user_id'] = user_id
+                    requests.post(f'{API_BASE_URL}/contacts', json=contact, headers=get_auth_headers())
+            success = 'User and related contacts added successfully.'
         else:
             error = response.json().get('detail', 'Failed to add user.')
     return render_template('add_user.html', error=error, success=success)
