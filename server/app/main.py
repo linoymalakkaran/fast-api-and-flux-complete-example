@@ -3,10 +3,7 @@ from app.core.middleware import log_requests
 from app.routers import admin, user, auth as auth_router, address_book
 from app.core import auth as core_auth
 
-
 app = FastAPI(lifespan=core_auth.lifespan)
-
-
 
 # Register logging middleware
 app.middleware("http")(log_requests)
